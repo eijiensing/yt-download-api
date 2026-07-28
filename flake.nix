@@ -28,22 +28,30 @@
       packages.x86_64-linux.default = pkgs.rustPlatform.buildRustPackage {
         pname = "yt-download-api";
         version = "0.1.0";
+
         src = ./.;
+
         cargoLock = {
           lockFile = ./Cargo.lock;
         };
 
         nativeBuildInputs = [
-          # pkgs.pkg-config
-          # pkgs.llvmPackages_latest.clang
-          # pkgs.llvmPackages_latest.libclang
+          pkgs.makeWrapper
         ];
 
         buildInputs = [
           pkgs.openssl
         ];
 
-        # LIBCLANG_PATH = "${pkgs.llvmPackages_latest.libclang.lib}/lib";
+        postInstall = ''
+          wrapProgram $out/bin/yt-download-api \
+            --prefix PATH : ${
+              pkgs.lib.makeBinPath [
+                pkgs.yt-dlp
+                pkgs.ffmpeg
+              ]
+            }
+        '';
       };
     };
 }

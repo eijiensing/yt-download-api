@@ -9,6 +9,9 @@ use tempfile::NamedTempFile;
 async fn main() {
     let app = Router::new().route("/mp3", post(handle_mp3));
 
+    std::env::var("YT_OUTPUT_PATH").expect("env YT_OUTPUT_PATH to exist");
+    std::env::var("YT_API_KEY").expect("env YT_API_KEY to exist");
+
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
@@ -21,7 +24,7 @@ struct Mp3Payload {
 }
 
 async fn handle_mp3(Json(payload): Json<Mp3Payload>) -> impl IntoResponse {
-    if &payload.api_key != "test123" {
+    if payload.api_key != std::env::var("YT_API_KEY").unwrap() {
         return (
             StatusCode::UNAUTHORIZED,
             Json(json!({
@@ -51,7 +54,10 @@ async fn handle_mp3(Json(payload): Json<Mp3Payload>) -> impl IntoResponse {
         "--embed-metadata",
         "--embed-thumbnail",
         "-o",
-        "/var/lib/my-api/music/%(title)s.%(ext)s",
+        &format!(
+            "{}%(title)s.%(ext)s",
+            std::env::var("YT_OUTPUT_PATH").unwrap()
+        ),
         &payload.yt_url,
     ]);
 
