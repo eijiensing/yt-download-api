@@ -24,5 +24,26 @@
           pkgs.pkg-config
         ];
       };
+
+      packages.x86_64-linux.default = pkgs.rustPlatform.buildRustPackage {
+        pname = "yt-download-api";
+        version = "0.1.0";
+        src = ./.;
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+        };
+
+        nativeBuildInputs = [
+          # pkgs.pkg-config
+          # pkgs.llvmPackages_latest.clang
+          # pkgs.llvmPackages_latest.libclang
+        ];
+
+        buildInputs = [
+          pkgs.openssl
+        ];
+
+        # LIBCLANG_PATH = "${pkgs.llvmPackages_latest.libclang.lib}/lib";
+      };
     };
 }
