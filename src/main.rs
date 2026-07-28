@@ -1,13 +1,31 @@
 use std::{io::Write, process::Command};
 
-use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{
+    Json, Router,
+    http::{Method, StatusCode, header::CONTENT_TYPE},
+    response::IntoResponse,
+    routing::post,
+};
 use serde::Deserialize;
 use serde_json::json;
 use tempfile::NamedTempFile;
+use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/mp3", post(handle_mp3));
+    let cors = CorsLayer::new()
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::OPTIONS,
+            Method::PUT,
+            Method::DELETE,
+        ])
+        .allow_credentials(true)
+        .allow_headers([CONTENT_TYPE])
+        .allow_origin(tower_http::cors::Any);
+
+    let app = Router::new().route("/mp3", post(handle_mp3).layer(cors));
 
     std::env::var("YT_OUTPUT_PATH").expect("env YT_OUTPUT_PATH to exist");
     std::env::var("YT_API_KEY").expect("env YT_API_KEY to exist");
