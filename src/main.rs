@@ -14,14 +14,7 @@ use tower_http::cors::CorsLayer;
 #[tokio::main]
 async fn main() {
     let cors = CorsLayer::new()
-        .allow_methods([
-            Method::GET,
-            Method::POST,
-            Method::OPTIONS,
-            Method::PUT,
-            Method::DELETE,
-        ])
-        .allow_credentials(true)
+        .allow_methods([Method::POST, Method::OPTIONS])
         .allow_headers([CONTENT_TYPE])
         .allow_origin(tower_http::cors::Any);
 
