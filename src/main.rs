@@ -2,12 +2,14 @@ use std::{io::Write, process::Command};
 
 use axum::{
     Json, Router,
-    http::{Method, StatusCode, header::CONTENT_TYPE},
+    extract::State,
+    http::{HeaderMap, Method, StatusCode, header::CONTENT_TYPE},
     response::IntoResponse,
     routing::post,
 };
 use serde::Deserialize;
 use serde_json::json;
+use sqlx::{Pool, Sqlite, prelude::FromRow, sqlite::SqlitePoolOptions};
 use tempfile::NamedTempFile;
 use tower_http::cors::CorsLayer;
 
@@ -18,7 +20,18 @@ async fn main() {
         .allow_headers([CONTENT_TYPE])
         .allow_origin(tower_http::cors::Any);
 
-    let app = Router::new().route("/mp3", post(handle_mp3).layer(cors));
+    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is present.");
+    let sqlite = SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect(db_url.as_str())
+        .await
+        .unwrap();
+
+    let app = Router::new()
+        .route("/download", post(download))
+        .route("/exists", post(exists))
+        .with_state(sqlite)
+        .layer(cors);
 
     std::env::var("YT_OUTPUT_PATH").expect("env YT_OUTPUT_PATH to exist");
     std::env::var("YT_API_KEY").expect("env YT_API_KEY to exist");
@@ -27,15 +40,73 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+const API_KEY_HEADER: &str = "x-api-key";
+
+#[derive(FromRow)]
+pub struct DownloadMetadata {
+    pub youtube_slug: String,
+    pub title: String,
+    pub normalized_title: String,
+    pub artist: Option<String>,
+    pub normalized_artist: Option<String>,
+    pub duration_seconds: Option<i64>,
+}
+
 #[derive(Deserialize)]
-struct Mp3Payload {
-    api_key: String,
+struct ExistsPayload {}
+
+#[axum::debug_handler]
+async fn exists(
+    headers: HeaderMap,
+    State(sqlite): State<Pool<Sqlite>>,
+    Json(payload): Json<Download>,
+) -> impl IntoResponse {
+    let api_key = std::env::var("YT_API_KEY").unwrap();
+    if !headers
+        .get(API_KEY_HEADER)
+        .is_some_and(|api_key_header_value| {
+            api_key_header_value.to_str().unwrap_or_default() == api_key
+        })
+    {
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(json!({
+                "message": "invalid api key"
+            })),
+        );
+    }
+
+    let result = sqlx::query_as!(
+        DownloadMetadata,
+        r#"
+            SELECT * FROM download_metadata
+        "#
+    )
+    .fetch_all(&sqlite)
+    .await;
+
+    (
+        StatusCode::OK,
+        Json(json!({
+            "message": "success"
+        })),
+    )
+}
+
+#[derive(Deserialize)]
+struct Download {
     cookies: Option<String>,
     yt_url: String,
 }
 
-async fn handle_mp3(Json(payload): Json<Mp3Payload>) -> impl IntoResponse {
-    if payload.api_key != std::env::var("YT_API_KEY").unwrap() {
+async fn download(headers: HeaderMap, Json(payload): Json<Download>) -> impl IntoResponse {
+    let api_key = std::env::var("YT_API_KEY").unwrap();
+    if !headers
+        .get(API_KEY_HEADER)
+        .is_some_and(|api_key_header_value| {
+            api_key_header_value.to_str().unwrap_or_default() == api_key
+        })
+    {
         return (
             StatusCode::UNAUTHORIZED,
             Json(json!({
@@ -61,9 +132,9 @@ async fn handle_mp3(Json(payload): Json<Mp3Payload>) -> impl IntoResponse {
     cmd.args([
         "-x",
         "--audio-format",
-        "best",
+        "m4a",
         "--embed-metadata",
-        "--embed-thumbnail",
+        "--no-write-thumbnail",
         "-o",
         &format!(
             "{}%(title)s.%(ext)s",
