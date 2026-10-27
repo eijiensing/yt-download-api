@@ -23,6 +23,8 @@
           pkgs.openssl
           pkgs.pkg-config
           pkgs.sqlx-cli
+					pkgs.yt-dlp
+					pkgs.ffmpeg
         ];
       };
 
