@@ -1,0 +1,86 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM download_metadata WHERE youtube_slug = $1 LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "youtube_slug",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "youtube_slug"
+          }
+        }
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "name": "normalized_title",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "normalized_title"
+          }
+        }
+      },
+      {
+        "name": "artist",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "artist"
+          }
+        }
+      },
+      {
+        "name": "normalized_artist",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "normalized_artist"
+          }
+        }
+      },
+      {
+        "name": "duration_seconds",
+        "ordinal": 5,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "duration_seconds"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "584da8d5c9842a70a99719beb9498b13d59a9af6c9190ca02ce81ab1c4bba6bd"
+}

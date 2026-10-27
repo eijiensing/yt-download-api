@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO download_metadata (\n            youtube_slug,\n            title,\n            normalized_title,\n            artist,\n            normalized_artist,\n            duration_seconds\n        ) VALUES \n        ($1, $2, $3, $4, $5, $6)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "b6919e70aced39e661b6d6832f6373402c1fc175b93285df71dc4dabd937dcd9"
+}

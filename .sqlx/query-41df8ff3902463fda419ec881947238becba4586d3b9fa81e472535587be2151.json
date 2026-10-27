@@ -1,0 +1,86 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT * FROM download_metadata\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "youtube_slug",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "youtube_slug"
+          }
+        }
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "name": "normalized_title",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "normalized_title"
+          }
+        }
+      },
+      {
+        "name": "artist",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "artist"
+          }
+        }
+      },
+      {
+        "name": "normalized_artist",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "normalized_artist"
+          }
+        }
+      },
+      {
+        "name": "duration_seconds",
+        "ordinal": 5,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "download_metadata",
+            "name": "duration_seconds"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "41df8ff3902463fda419ec881947238becba4586d3b9fa81e472535587be2151"
+}
